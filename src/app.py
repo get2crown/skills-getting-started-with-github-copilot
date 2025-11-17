@@ -81,14 +81,6 @@ activities = {
 @app.get("/")
 def root():
     return RedirectResponse(url="/static/index.html")
-    "Math Club": {
-        "description": "Solve challenging math problems and participate in competitions",
-        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
-        "max_participants": 10,
-        "participants": []
-    }
-}
-
 
 @app.post("/activities/{activity_name}/unregister")
 def unregister_from_activity(activity_name: str, email: str):
@@ -104,17 +96,19 @@ def unregister_from_activity(activity_name: str, email: str):
     return {"message": f"Removed {email} from {activity_name}"}
 
 
-@app.get("/")
-    if email in activities[activity_name]["participants"]:
-        raise HTTPException(status_code=400, detail="Student already signed up for this activity")
-    """Sign up a student for an activity"""
+@app.get("/activities")
+def get_activities():
+    return activities
+
+
+@app.post("/activities/{activity_name}/signup")
+def signup_for_activity(activity_name: str, email: str):
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
-
-    # Get the specific activity
     activity = activities[activity_name]
-
-    # Add student
+    # Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up for this activity")
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
